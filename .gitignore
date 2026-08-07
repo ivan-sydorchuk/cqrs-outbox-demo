@@ -1,0 +1,11 @@
+# .NET
+dotnet/**/bin/
+dotnet/**/obj/
+
+# Node
+nest/node_modules/
+nest/dist/
+nest/.env
+
+# OS
+.DS_Store

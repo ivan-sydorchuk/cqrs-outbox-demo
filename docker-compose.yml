@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: cqrs-outbox-postgres
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./sql/init-databases.sql:/docker-entrypoint-initdb.d/01-init-databases.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
