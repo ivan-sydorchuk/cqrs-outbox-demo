@@ -50,3 +50,18 @@ CREATE TABLE outbox (
 );
 
 CREATE INDEX idx_outbox_aggregate_id ON outbox (aggregate_id);
+
+-- Block 10 additions — outbox_nest only. See block10-worker-extension.sql
+-- for why (transaction_id ordering, the event_subscription checkpoint).
+ALTER TABLE outbox
+    ADD COLUMN transaction_id xid8 NOT NULL DEFAULT pg_current_xact_id();
+
+CREATE INDEX idx_outbox_transaction_id ON outbox (transaction_id, position);
+
+CREATE TABLE event_subscription (
+    name                 TEXT PRIMARY KEY,
+    last_transaction_id  xid8   NOT NULL DEFAULT '0',
+    last_position        BIGINT NOT NULL DEFAULT 0
+);
+
+INSERT INTO event_subscription (name) VALUES ('kafka-order-events-0'), ('kafka-order-events-1');

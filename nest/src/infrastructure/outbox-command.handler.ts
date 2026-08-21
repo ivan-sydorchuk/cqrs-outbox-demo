@@ -41,17 +41,20 @@ export abstract class OutboxCommandHandler<TCommand extends ICommand, TResult = 
   ): Promise<HandleResult<TResult>>;
 
   private async persistOutbox(tx: Prisma.TransactionClient, aggregates: AggregateRoot[]): Promise<void> {
-    const rows = aggregates.flatMap((aggregate) =>
-      (aggregate.getUncommittedEvents() as DomainEvent[]).map((event) => ({
-        aggregateId: event.aggregateId,
-        eventType: event.constructor.name,
-        payload: event as unknown as Prisma.InputJsonValue,
-        occurredAt: event.occurredAt,
-      })),
-    );
+    const events = aggregates.flatMap((aggregate) => aggregate.getUncommittedEvents() as DomainEvent[]);
 
-    if (rows.length > 0) {
-      await tx.outbox.createMany({ data: rows });
+    // outbox.transaction_id is Unsupported("xid8") in the Prisma schema
+    // (Block 10) — Prisma disables batch write methods like createMany() on
+    // any model that has an Unsupported column, so this goes through
+    // $executeRaw instead. transaction_id itself is never set here: the
+    // column's DB-level DEFAULT pg_current_xact_id() (see
+    // sql/block10-worker-extension.sql) fills it in, evaluated in this same
+    // transaction.
+    for (const event of events) {
+      await tx.$executeRaw`
+        INSERT INTO outbox (aggregate_id, event_type, payload, occurred_at)
+        VALUES (${event.aggregateId}::uuid, ${event.constructor.name}, ${JSON.stringify(event)}::jsonb, ${event.occurredAt})
+      `;
     }
 
     // Only reached if the transaction is still going to commit, so a thrown

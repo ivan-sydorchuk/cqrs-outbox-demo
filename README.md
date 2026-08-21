@@ -4,8 +4,12 @@ Block 9 practice task: **read/write separation (CQS/CQRS) + a transactional outb
 the same Postgres schema — once in .NET (MediatR + EF Core), once in NestJS (`@nestjs/cqrs` + Prisma) —
 to compare how each stack makes domain-event persistence automatic and invisible to the feature developer.
 
-- [`dotnet/`](dotnet/README.md) — MediatR + EF Core
-- [`nest/`](nest/README.md) — `@nestjs/cqrs` + Prisma
+Block 10 extends the NestJS side only: a worker service that relays committed outbox rows to Kafka,
+scaled to multiple instances, ordered correctly despite out-of-order commits, and proven crash-safe by
+actually killing an instance mid-burst. See [`nest/README.md`](nest/README.md#block-10--outbox-worker-relay-to-kafka).
+
+- [`dotnet/`](dotnet/README.md) — MediatR + EF Core (Block 9 only)
+- [`nest/`](nest/README.md) — `@nestjs/cqrs` + Prisma (Block 9 + Block 10 worker)
 
 Each has its own README with the details specific to that stack. This one covers what's shared.
 

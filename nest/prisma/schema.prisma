@@ -31,6 +31,25 @@ model Outbox {
   eventType   String   @map("event_type")
   payload     Json
   occurredAt  DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  // xid8 has no Prisma scalar equivalent, so this is Unsupported: Prisma Client
+  // can select it (as a string) but can't filter/order by it or write it through
+  // the normal API. The DB-level DEFAULT pg_current_xact_id() (see
+  // sql/block10-worker-extension.sql) means ordinary Prisma inserts still get a
+  // correct value for free. The worker's polling query reads/compares it via
+  // $queryRaw — see worker/outbox-reader.ts.
+  transactionId Unsupported("xid8") @map("transaction_id")
 
   @@map("outbox")
+}
+
+// Block 10: one row per logical consumer of the outbox ("subscription"). The
+// worker claims this row with SELECT ... FOR UPDATE SKIP LOCKED before
+// reading a batch, and advances the checkpoint columns after Kafka acks —
+// never before. See worker/outbox-reader.ts.
+model EventSubscription {
+  name               String              @id
+  lastTransactionId  Unsupported("xid8") @map("last_transaction_id")
+  lastPosition       BigInt              @default(0) @map("last_position")
+
+  @@map("event_subscription")
 }
