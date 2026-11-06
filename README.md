@@ -8,8 +8,14 @@ Block 10 extends the NestJS side only: a worker service that relays committed ou
 scaled to multiple instances, ordered correctly despite out-of-order commits, and proven crash-safe by
 actually killing an instance mid-burst. See [`nest/README.md`](nest/README.md#block-10--outbox-worker-relay-to-kafka).
 
+Block 11 is a separate subproject, not an extension of either: an **event-sourced** `Order`, where state
+is computed by replaying events rather than stored in a row, run against a storage-agnostic `EventStore`
+interface implemented on both Postgres and KurrentDB. See
+[`event-sourcing/README.md`](event-sourcing/README.md).
+
 - [`dotnet/`](dotnet/README.md) — MediatR + EF Core (Block 9 only)
 - [`nest/`](nest/README.md) — `@nestjs/cqrs` + Prisma (Block 9 + Block 10 worker)
+- [`event-sourcing/`](event-sourcing/README.md) — storage-agnostic event-sourced `Order` (Block 11, Postgres + KurrentDB)
 
 Each has its own README with the details specific to that stack. This one covers what's shared.
 

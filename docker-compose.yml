@@ -38,3 +38,31 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  # Block 11: single-node, insecure (no TLS) KurrentDB -- the purpose-built
+  # event store swapped in behind the same EventStore interface the Postgres
+  # implementation satisfies. Not clustered, not for production.
+  kurrentdb:
+    image: kurrentplatform/kurrentdb:latest
+    container_name: cqrs-outbox-kurrentdb
+    environment:
+      KURRENTDB_CLUSTER_SIZE: 1
+      KURRENTDB_RUN_PROJECTIONS: All
+      KURRENTDB_START_STANDARD_PROJECTIONS: true
+      KURRENTDB_NODE_PORT: 2113
+      KURRENTDB_INSECURE: true
+      KURRENTDB_ENABLE_ATOM_PUB_OVER_HTTP: true
+    ports:
+      - "2113:2113"
+    volumes:
+      - kurrentdb-data:/var/lib/kurrentdb
+      - kurrentdb-logs:/var/log/kurrentdb
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:2113/health/live || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  kurrentdb-data:
+  kurrentdb-logs:

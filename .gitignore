@@ -7,5 +7,9 @@ nest/node_modules/
 nest/dist/
 nest/.env
 
+event-sourcing/node_modules/
+event-sourcing/dist/
+event-sourcing/.env
+
 # OS
 .DS_Store

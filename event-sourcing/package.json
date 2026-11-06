@@ -1,0 +1,34 @@
+{
+  "name": "cqrs-outbox-event-sourcing",
+  "version": "0.0.1",
+  "description": "Block 11 practice task — event-sourced Order aggregate, storage-agnostic EventStore behind Postgres and KurrentDB",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "migrate": "ts-node -r tsconfig-paths/register scripts/migrate.ts",
+    "demo": "ts-node -r tsconfig-paths/register src/demo.ts",
+    "demo:kurrentdb": "cross-env EVENT_STORE=kurrentdb ts-node -r tsconfig-paths/register src/demo.ts",
+    "verify-gaps": "ts-node -r tsconfig-paths/register scripts/verify-gaps.ts",
+    "verify-gaps:kurrentdb": "cross-env EVENT_STORE=kurrentdb ts-node -r tsconfig-paths/register scripts/verify-gaps.ts"
+  },
+  "dependencies": {
+    "@kurrent/kurrentdb-client": "^1.1.0",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "dotenv": "^17.4.2",
+    "pg": "^8.13.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.11.10",
+    "@types/uuid": "^10.0.0",
+    "cross-env": "^7.0.3",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3"
+  }
+}
